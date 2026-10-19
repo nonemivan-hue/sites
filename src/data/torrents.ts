@@ -51,6 +51,13 @@ export const tags: Tag[] = [
   { id: 'bdrip', name: 'BDRip', category: 'Тип', color: 'bg-fuchsia-300' },
   { id: 'dvdrip', name: 'DVDRip', category: 'Тип', color: 'bg-fuchsia-200' },
   { id: 'repack', name: 'Repack', category: 'Тип', color: 'bg-pink-400' },
+  
+  // Возрастные ограничения
+  { id: '18+', name: '18+', category: 'Возраст', color: 'bg-red-700' },
+  { id: '16+', name: '16+', category: 'Возраст', color: 'bg-orange-600' },
+  { id: '12+', name: '12+', category: 'Возраст', color: 'bg-yellow-500' },
+  { id: '6+', name: '6+', category: 'Возраст', color: 'bg-green-500' },
+  { id: '0+', name: '0+', category: 'Возраст', color: 'bg-blue-500' },
 ];
 
 export const torrents: Torrent[] = [
