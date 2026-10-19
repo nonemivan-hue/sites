@@ -149,6 +149,21 @@
                                 <span class="category-badge category-{{ torrent.category }}">
                                     {{ torrent.category }}
                                 </span>
+                                {% if '18+' in torrent.tags %}
+                                <span class="age-badge age-18">18+</span>
+                                {% endif %}
+                                {% if '16+' in torrent.tags %}
+                                <span class="age-badge age-16">16+</span>
+                                {% endif %}
+                                {% if '12+' in torrent.tags %}
+                                <span class="age-badge age-12">12+</span>
+                                {% endif %}
+                                {% if '6+' in torrent.tags %}
+                                <span class="age-badge age-6">6+</span>
+                                {% endif %}
+                                {% if '0+' in torrent.tags %}
+                                <span class="age-badge age-0">0+</span>
+                                {% endif %}
                             </div>
                             
                             <div class="torrent-body">

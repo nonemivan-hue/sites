@@ -287,7 +287,7 @@ function TorrentCard({ torrent }: { torrent: Torrent }) {
   return (
     <div className="bg-gray-800/50 border border-gray-700/50 rounded-xl p-4 hover:border-purple-500/30 hover:bg-gray-800/70 transition-all group">
       <div className="flex flex-col sm:flex-row sm:items-start gap-3">
-        <div className="flex-shrink-0">
+        <div className="flex-shrink-0 flex flex-col gap-2">
           <span className={`inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-bold ${
             torrent.category === 'Фильмы' ? 'bg-red-500/20 text-red-300' :
             torrent.category === 'Сериалы' ? 'bg-orange-500/20 text-orange-300' :
@@ -300,6 +300,31 @@ function TorrentCard({ torrent }: { torrent: Torrent }) {
           }`}>
             {torrent.category}
           </span>
+          {torrent.tags.includes('18+') && (
+            <span className="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-bold bg-red-700/30 text-red-400 border border-red-700/50">
+              18+
+            </span>
+          )}
+          {torrent.tags.includes('16+') && (
+            <span className="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-bold bg-orange-600/30 text-orange-400 border border-orange-600/50">
+              16+
+            </span>
+          )}
+          {torrent.tags.includes('12+') && (
+            <span className="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-bold bg-yellow-500/30 text-yellow-400 border border-yellow-500/50">
+              12+
+            </span>
+          )}
+          {torrent.tags.includes('6+') && (
+            <span className="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-bold bg-green-500/30 text-green-400 border border-green-500/50">
+              6+
+            </span>
+          )}
+          {torrent.tags.includes('0+') && (
+            <span className="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-bold bg-blue-500/30 text-blue-400 border border-blue-500/50">
+              0+
+            </span>
+          )}
         </div>
 
         <div className="flex-1 min-w-0">
