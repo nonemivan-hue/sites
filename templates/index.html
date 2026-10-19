@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TorrentFinder - Поиск торрентов по тегам</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <div class="logo-icon">⬇</div>
+                    <div>
+                        <h1 class="logo-text">TorrentFinder</h1>
+                        <p class="logo-subtitle">Поиск торрентов по тегам</p>
+                    </div>
+                </div>
+                <div class="header-stats">
+                    💾 {{ total_torrents }} раздач
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Search Section -->
+    <div class="container search-section">
+        <form method="GET" action="/" class="search-form">
+            <div class="search-input-wrapper">
+                <span class="search-icon">🔍</span>
+                <input 
+                    type="text" 
+                    name="search" 
+                    value="{{ search_query }}"
+                    placeholder="Поиск торрентов по названию, категории или тегам..." 
+                    class="search-input"
+                >
+                {% if search_query %}
+                <a href="/" class="search-clear">✕</a>
+                {% endif %}
+            </div>
+            
+            <!-- Hidden fields for selected tags -->
+            {% for tag in selected_tags %}
+            <input type="hidden" name="tags" value="{{ tag }}">
+            {% endfor %}
+            <input type="hidden" name="sort" value="{{ sort_by }}">
+        </form>
+
+        <!-- Active Filters -->
+        {% if selected_tags %}
+        <div class="active-filters">
+            <span class="filters-label">Выбрано:</span>
+            {% for tag_id in selected_tags %}
+                {% for tag in tags %}
+                    {% if tag.id == tag_id %}
+                    <a href="?{% for t in selected_tags if t != tag_id %}tags={{ t }}&{% endfor %}search={{ search_query }}&sort={{ sort_by }}" 
+                       class="filter-tag {{ tag.color }}">
+                        {{ tag.name }} ✕
+                    </a>
+                    {% endif %}
+                {% endfor %}
+            {% endfor %}
+            <a href="/" class="clear-all">Сбросить всё</a>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Main Content -->
+    <div class="container main-content">
+        <div class="layout">
+            <!-- Sidebar - Tags -->
+            <aside class="sidebar">
+                <div class="sidebar-card">
+                    <h2 class="sidebar-title">🏷️ Теги</h2>
+                    
+                    <form method="GET" action="/" class="tags-form">
+                        <input type="hidden" name="search" value="{{ search_query }}">
+                        <input type="hidden" name="sort" value="{{ sort_by }}">
+                        
+                        {% for category in tag_categories %}
+                        <div class="tag-category">
+                            <div class="category-header" onclick="this.parentElement.classList.toggle('collapsed')">
+                                <span>{{ category }}</span>
+                                <span class="toggle-icon">▼</span>
+                            </div>
+                            <div class="category-tags">
+                                {% for tag in tags %}
+                                    {% if tag.category == category %}
+                                    <label class="tag-checkbox">
+                                        <input 
+                                            type="checkbox" 
+                                            name="tags" 
+                                            value="{{ tag.id }}"
+                                            {% if tag.id in selected_tags %}checked{% endif %}
+                                            onchange="this.form.submit()"
+                                        >
+                                        <span class="tag-label {% if tag.id in selected_tags %}{{ tag.color }} active{% endif %}">
+                                            {{ tag.name }}
+                                        </span>
+                                    </label>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </form>
+                </div>
+            </aside>
+
+            <!-- Results -->
+            <main class="results">
+                <!-- Sort Controls -->
+                <div class="sort-controls">
+                    <p class="results-count">
+                        Найдено: <strong>{{ torrents|length }}</strong> раздач
+                    </p>
+                    <div class="sort-buttons">
+                        <a href="?search={{ search_query }}&sort=seeds{% for t in selected_tags %}&tags={{ t }}{% endfor %}" 
+                           class="sort-btn {% if sort_by == 'seeds' %}active{% endif %}">
+                            📈 Сиды
+                        </a>
+                        <a href="?search={{ search_query }}&sort=downloads{% for t in selected_tags %}&tags={{ t }}{% endfor %}" 
+                           class="sort-btn {% if sort_by == 'downloads' %}active{% endif %}">
+                            ⬇️ Загрузки
+                        </a>
+                        <a href="?search={{ search_query }}&sort=date{% for t in selected_tags %}&tags={{ t }}{% endfor %}" 
+                           class="sort-btn {% if sort_by == 'date' %}active{% endif %}">
+                            🕐 Дата
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Torrent List -->
+                <div class="torrent-list">
+                    {% if torrents|length == 0 %}
+                    <div class="no-results">
+                        <div class="no-results-icon">🔍</div>
+                        <h3>Ничего не найдено</h3>
+                        <p>Попробуйте изменить параметры поиска или сбросить фильтры</p>
+                        <a href="/" class="reset-btn">Сбросить фильтры</a>
+                    </div>
+                    {% else %}
+                        {% for torrent in torrents %}
+                        <div class="torrent-card">
+                            <div class="torrent-header">
+                                <span class="category-badge category-{{ torrent.category }}">
+                                    {{ torrent.category }}
+                                </span>
+                            </div>
+                            
+                            <div class="torrent-body">
+                                <h3 class="torrent-name">{{ torrent.name }}</h3>
+                                
+                                <div class="torrent-tags">
+                                    {% for tag_id in torrent.tags[:5] %}
+                                        {% for tag in tags %}
+                                            {% if tag.id == tag_id %}
+                                            <span class="torrent-tag">{{ tag.name }}</span>
+                                            {% endif %}
+                                        {% endfor %}
+                                    {% endfor %}
+                                    {% if torrent.tags|length > 5 %}
+                                    <span class="torrent-tag-more">+{{ torrent.tags|length - 5 }}</span>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="torrent-stats">
+                                    <span>💾 {{ torrent.size }}</span>
+                                    <span class="seeds">📈 {{ '{:,}'.format(torrent.seeds) }} сидов</span>
+                                    <span class="leechers">{{ '{:,}'.format(torrent.leechers) }} личей</span>
+                                    <span>⬇️ {{ '{:,}'.format(torrent.downloads) }}</span>
+                                    <span>🕐 {{ torrent.upload_date }}</span>
+                                </div>
+                            </div>
+                            
+                            <div class="torrent-action">
+                                <button class="magnet-btn" onclick="copyMagnet('{{ torrent.magnet_link }}', this)">
+                                    ⬇️ Magnet
+                                </button>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script>
+        function copyMagnet(link, btn) {
+            navigator.clipboard.writeText(link).then(() => {
+                const originalText = btn.innerHTML;
+                btn.innerHTML = '✓ Скопировано';
+                btn.classList.add('copied');
+                setTimeout(() => {
+                    btn.innerHTML = originalText;
+                    btn.classList.remove('copied');
+                }, 2000);
+            });
+        }
+    </script>
+</body>
+</html>
